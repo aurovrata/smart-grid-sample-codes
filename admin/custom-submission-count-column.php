@@ -25,31 +25,20 @@ function print_cf7_submissions_column( $column, $post_id ) {
 */
 add_action('wpcf7_before_send_mail', 'track_cf7sg_submissions');
 function track_cf7sg_submissions($form){
-  if(empty($form)) return;
+  if( !isset($_POST['_wpcf7']) or empty($form)) return;
+  //if demo form, don't count.
+  if( isset($_POST['_cf7sg_preview'])) return;
+
   switch(get_current_user_id()){
     case 1: //admin user, don't count submissions.
       break;
     case 0: //no user logged;
-    default: //anyone else.
       $count = get_post_meta( $form->id(), '_cf7sg-submissions', true );
       if(empty($count)) $count=0;
       $count++;
       update_post_meta($form->id(), '_cf7sg-submissions',$count);
       break;
+    default: //anyone else.
+      break;
   }
 }
-/**
-* OPTIONAL: Enqueue your custom stylesheet if you have one.
-*/
-add_action('cf7sg_enqueue_admin_table_styles', 'add_form_table_css');
-function add_form_table_css(){
-  wp_enqueue_style('my-custom-cf7-admin-css', get_stylesheet_uri().'css/cf7-admin.css');
-}
-/**
-* OPTIONAL: Enqueue your custom javascript if you have one.
-*/
-add_action('cf7sg_enqueue_admin_table_scripts', 'add_form_table_script');
-function add_form_table_script(){
-  wp_enqueue_style('my-custom-cf7-admin-js', get_stylesheet_uri().'js/cf7-admin.js');
-}
-
